@@ -3,38 +3,45 @@ const mongoose = require('mongoose')
 
 const createUser = async (req, res) => {
 
-    const { uid, name, whatsapp, slack, email, time, role, manager, photoUrl, surname, birthday, child } = req.body
+    try {
+        const { uid, name, whatsapp, slack, email, time, role, manager, photoUrl, surname, birthday, child } = req.body
 
-    const userRegistered = await userService.findById({ uid })
+        const userRegistered = await userService.findById(uid)
 
-    if (userRegistered) {
-        return res.status(400).json({ message: "Usuário já cadastrado" })
-    }
-
-    const user = await userService.create(req.body)
-
-    if (!user) {
-        return res.status(400).send({ message: "Erro ao criar usuário" })
-    }
-
-    res.status(201).send({
-        message: "Usário cadastrado com sucesso",
-        user: {
-            id: res._id,
-            uid,
-            name,
-            whatsapp,
-            slack,
-            email,
-            time,
-            role,
-            manager,
-            photoUrl,
-            surname,
-            birthday,
-            child
+        if (userRegistered) {
+            return res.status(400).json({ message: "Usuário já cadastrado" })
         }
-    })
+
+        const user = await userService.create(req.body)
+
+        if (!user) {
+            return res.status(400).send({ message: "Erro ao criar usuário" })
+        }
+
+        res.status(201).send({
+            message: "Usário cadastrado com sucesso",
+            user: {
+                id: res._id,
+                uid,
+                name,
+                whatsapp,
+                slack,
+                email,
+                time,
+                role,
+                manager,
+                photoUrl,
+                surname,
+                birthday,
+                child
+            }
+        })
+
+    } catch (error) {
+        console.log(`Erro ao criar usuário ${error}`)
+        res.status(500).json({message: "Erro interno no servidor"})
+    }
+
 }
 
 const findAllUsers = async (req, res) => {
@@ -78,7 +85,7 @@ const findByUidAndUpdate = async (req, res) => {
         const uid = req.params.uid
 
         const update = req.body
-        
+
         const updateUser = await userService.findByUidAndUpdate(uid, update)
 
         if (!updateUser) {

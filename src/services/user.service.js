@@ -6,7 +6,7 @@ const create = (body) => User.create(body)
 const findAll = () => User.find()
 
 const findById = async (uid) => {
-    return await User.findOne({uid});
+    return await User.findOne({uid: String(uid)});
 };
 
 const deleteAll = () => User.deleteMany()

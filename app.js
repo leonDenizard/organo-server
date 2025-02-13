@@ -16,10 +16,13 @@ app.use(express.urlencoded({ limit: '50mb', extended: true }));
 app.use(cors())
 
 
-app.listen(3000, ()=>{
-    console.log("Server on")
+const PORT = process.env.PORT || 3000
+
+app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`)
 })
 
+app.use('/api/user', userRoute)
+app.use('/api/schedule', scheduleRoute)
 
-app.use('/user', userRoute)
-app.use('/schedule', scheduleRoute)
+module.exports = app
