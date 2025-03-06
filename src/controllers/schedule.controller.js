@@ -1,4 +1,5 @@
 const scheduleService = require('../services/schedule.service')
+const ScheduleModel = require('../models/Schedule');
 
 const createSchedule = async (req, res) => {
 
@@ -46,8 +47,60 @@ const findAll = async (req, res) => {
         res.send({message: "Escala não encontrada"})
     }
 }
+
+const updateSchedule = async (req, res) => {
+    try {
+        const { date, uid } = req.body; // Recebe apenas UM UID
+
+        // Busca o documento da escala
+        const scheduleDoc = await ScheduleModel.findOne();
+
+        if (!scheduleDoc) {
+            return res.status(404).json({ message: "Nenhuma escala encontrada." });
+        }
+
+        // Obtém a escala do dia específico ou cria um array vazio
+        const scheduleForDate = scheduleDoc.schedule.get(date) || [];
+
+        if (scheduleForDate.includes(uid)) {
+            // Remove o UID se já estiver na lista (toggle)
+            scheduleDoc.schedule.set(date, scheduleForDate.filter(u => u !== uid));
+        } else {
+            // Adiciona o UID se não estiver presente
+            scheduleForDate.push(uid);
+            scheduleDoc.schedule.set(date, scheduleForDate);
+        }
+
+        await scheduleDoc.save();
+
+        res.json({ success: true, message: "Escala atualizada com sucesso!", schedule: scheduleDoc.schedule.get(date) });
+    } catch (error) {
+        res.status(500).json({ error: "Erro ao atualizar escala", details: error.message });
+    }
+};
+
+const findByDate = async (req, res) => {
+    const date = req.params.date; // Pega a data da URL
+
+    try {
+        const schedule = await scheduleService.findByDate(date); // Chama o serviço para buscar no banco
+
+        if (!schedule) {
+            return res.status(404).json({ message: "Nenhuma escala encontrada para essa data." });
+        }
+
+        res.json(schedule); // Retorna a escala do dia
+    } catch (error) {
+        console.error("Erro ao buscar escala por data:", error);
+        res.status(500).json({ message: "Erro interno do servidor." });
+    }
+};
+
+
 module.exports = {
     createSchedule,
     findByUID,
-    findAll
+    findAll,
+    updateSchedule,
+    findByDate
 }

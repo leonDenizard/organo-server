@@ -39,6 +39,9 @@ const UserSchema = new mongoose.Schema({
     child: {
         type: String
     },
+    admin: {
+        type: Boolean
+    }
 
 
 })
