@@ -96,11 +96,18 @@ const findByDate = async (req, res) => {
     }
 };
 
+const deleteSchedule = async (req, res) => {
+    const schedule = await scheduleService.deleteAll()
+
+    res.send("Escala deletada com sucesso")
+}
+
 
 module.exports = {
     createSchedule,
     findByUID,
     findAll,
     updateSchedule,
-    findByDate
+    findByDate,
+    deleteSchedule
 }

@@ -7,5 +7,6 @@ route.get('/:uid', scheduleController.findByUID)
 route.get('/', scheduleController.findAll)
 route.post('/update', scheduleController.updateSchedule)
 route.get('/date/:date', scheduleController.findByDate)
+route.delete('/', scheduleController.deleteSchedule)
 
 module.exports = route

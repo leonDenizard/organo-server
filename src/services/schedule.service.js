@@ -60,6 +60,8 @@ const update = async (date, updatedSchedule) => {
     }
 };
 
+const deleteAll = () => Schedule.deleteMany()
+
 
 
 module.exports = {
@@ -67,5 +69,6 @@ module.exports = {
     findById,
     findAll,
     update,
-    findByDate
+    findByDate,
+    deleteAll
 }
