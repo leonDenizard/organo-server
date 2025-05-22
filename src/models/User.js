@@ -41,7 +41,10 @@ const UserSchema = new mongoose.Schema({
     },
     admin: {
         type: Boolean
-    }
+    },
+    interval: {
+        type: String
+    },
 
 
 })

@@ -4,7 +4,7 @@ const mongoose = require('mongoose')
 const createUser = async (req, res) => {
 
     try {
-        const { uid, name, whatsapp, slack, email, time, role, manager, photoUrl, surname, birthday, child, admin } = req.body
+        const { uid, name, whatsapp, slack, email, time, role, manager, photoUrl, surname, birthday, child, admin, interval } = req.body
 
         const userRegistered = await userService.findById(uid)
 
@@ -34,7 +34,8 @@ const createUser = async (req, res) => {
                 surname,
                 birthday,
                 child,
-                admin
+                admin,
+                inteval
             }
         })
 
