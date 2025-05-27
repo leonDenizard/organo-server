@@ -45,6 +45,13 @@ app.use(express.urlencoded({ limit: '50mb', extended: true }));
 app.use('/api/user', userRoute);
 app.use('/api/schedule', scheduleRoute);
 
+app.use((req, res, next) => {
+  const origin = req.headers.origin;
+  res.setHeader('X-Debug-Origin', origin || 'none');
+  next();
+});
+
+
 app.delete('/api/schedule', async (req, res) => {
   try {
     await Schedule.deleteMany();
