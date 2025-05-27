@@ -5,6 +5,7 @@ const scheduleRoute = require('./src/routes/schedule.route')
 const cors = require('cors')
 
 const connectDatabase = require('./src/database/db')
+const Schedule = require('./src/models/Schedule')
 
 const app = express()
 
@@ -24,5 +25,15 @@ app.listen(PORT, () => {
 
 app.use('/api/user', userRoute)
 app.use('/api/schedule', scheduleRoute)
+
+app.delete('/api/schedule', async (req, res) => {
+  try {
+    await Schedule.deleteMany();
+    res.status(200).json({ message: 'Escala deletada com sucesso' });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 
 module.exports = app
