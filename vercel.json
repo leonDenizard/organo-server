@@ -1,15 +1,18 @@
 {
   "version": 2,
   "builds": [
-    {
-      "src": "app.js",
-      "use": "@vercel/node"
-    }
+    { "src": "app.js", "use": "@vercel/node" },
+    { "src": "api/schedule.js", "use": "@vercel/node" }
   ],
   "routes": [
     {
+      "src": "/api/schedule/delete",
+      "methods": ["DELETE"],
+      "dest": "api/schedule.js"
+    },
+    {
       "src": "/api/(.*)",
-      "methods": ["GET", "POST", "PUT", "DELETE", "PATCH"],
+      "methods": ["GET", "POST", "PUT", "PATCH"],
       "dest": "app.js"
     }
   ]
