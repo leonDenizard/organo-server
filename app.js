@@ -51,6 +51,11 @@ app.use((req, res, next) => {
   next();
 });
 
+app.get('/debug', (req, res) => {
+  console.log('✅ Rota /debug foi acessada');
+  res.send('Debug OK');
+});
+
 
 app.delete('/api/schedule', async (req, res) => {
   try {
