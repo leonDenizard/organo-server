@@ -60,7 +60,9 @@ const update = async (date, updatedSchedule) => {
     }
 };
 
-const deleteAll = () => Schedule.deleteMany()
+// Comentado por causa da migração para Vercel Serverless
+
+// const deleteAll = () => Schedule.deleteMany()
 
 
 
@@ -70,5 +72,4 @@ module.exports = {
     findAll,
     update,
     findByDate,
-    deleteAll
 }

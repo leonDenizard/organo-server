@@ -96,11 +96,13 @@ const findByDate = async (req, res) => {
     }
 };
 
-const deleteSchedule = async (req, res) => {
-    const schedule = await scheduleService.deleteAll()
+// Comentado por causa da migração para Vercel Serverless
 
-    res.send("Escala deletada com sucesso")
-}
+// const deleteSchedule = async (req, res) => {
+//     const schedule = await scheduleService.deleteAll()
+
+//     res.send("Escala deletada com sucesso")
+// }
 
 
 module.exports = {
@@ -109,5 +111,4 @@ module.exports = {
     findAll,
     updateSchedule,
     findByDate,
-    deleteSchedule
 }

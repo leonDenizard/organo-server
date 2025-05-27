@@ -7,6 +7,8 @@ route.get('/:uid', scheduleController.findByUID)
 route.get('/', scheduleController.findAll)
 route.post('/update', scheduleController.updateSchedule)
 route.get('/date/:date', scheduleController.findByDate)
-route.delete('/', scheduleController.deleteSchedule)
+
+// Comentado por causa da migração para Vercel Serverless
+// route.delete('/', scheduleController.deleteSchedule)
 
 module.exports = route
