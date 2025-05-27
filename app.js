@@ -36,7 +36,7 @@ const allowedOrigins = [
   'http://localhost:3000',
   'http://localhost:5174',
   'https://organo-two-henna.vercel.app',
-  'server-ten-ivory.vercel.app'
+  'https://server-ten-ivory.vercel.app'
 ];
 
 
