@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const Schedule = require('../src/models/Schedule');  // ajuste o path conforme sua estrutura
+const Schedule = require('../../src/models/Schedule');  // ajuste o path conforme sua estrutura
 
 const connectDB = async () => {
   if (mongoose.connection.readyState >= 1) return;
