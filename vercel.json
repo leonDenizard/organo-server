@@ -6,7 +6,7 @@
   ],
   "routes": [
     {
-      "src": "/api/schedule/delete",
+      "src": "/api/schedule",
       "methods": ["DELETE"],
       "dest": "api/schedule.js"
     }
