@@ -14,7 +14,13 @@ connectDatabase()
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
-app.use(cors())
+const corsOptions = {
+  origin: 'https://organo-two-henna.vercel.app',
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
+  credentials: true,  // se usar cookies ou auth
+};
+
+app.use(cors(corsOptions))
 
 
 const PORT = process.env.PORT || 3000
