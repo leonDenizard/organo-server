@@ -1,15 +1,22 @@
 const express = require('express');
 const userRoute = require('./src/routes/user.route');
 const scheduleRoute = require('./src/routes/schedule.route');
+const Schedule = require('./src/models/Schedule');
 
 const cors = require('cors');
 
 const connectDatabase = require('./src/database/db');
-const Schedule = require('./src/models/Schedule');
 
 const app = express();
 
 connectDatabase();
+
+const allowedOrigins = [
+  'http://localhost:3000',
+  'http://localhost:5174',
+  'https://organo-two-henna.vercel.app',
+  'https://server-ten-ivory.vercel.app'
+];
 
 const corsOptions = {
   origin: function (origin, callback) {
@@ -32,12 +39,7 @@ app.options('*', cors(corsOptions));
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
-const allowedOrigins = [
-  'http://localhost:3000',
-  'http://localhost:5174',
-  'https://organo-two-henna.vercel.app',
-  'https://server-ten-ivory.vercel.app'
-];
+
 
 
 app.use('/api/user', userRoute);
