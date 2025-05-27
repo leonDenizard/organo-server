@@ -9,11 +9,6 @@
       "src": "/api/schedule/delete",
       "methods": ["DELETE"],
       "dest": "api/schedule.js"
-    },
-    {
-      "src": "/api/(.*)",
-      "methods": ["GET", "POST", "PUT", "PATCH"],
-      "dest": "app.js"
     }
   ]
 }
