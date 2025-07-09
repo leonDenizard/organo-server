@@ -35,26 +35,28 @@ const createUser = async (req, res) => {
                 birthday,
                 child,
                 admin,
-                inteval
+                interval
             }
         })
 
     } catch (error) {
         console.log(`Erro ao criar usuário ${error}`)
-        res.status(500).json({message: "Erro interno no servidor"})
+        res.status(500).json({ message: "Erro interno no servidor", error })
     }
 
 }
 
 const findAllUsers = async (req, res) => {
 
-    const users = await userService.findAll()
-
-    if (users.length === 0) {
-        return res.status(400).send({ message: "Sem usuários cadastrados" })
+    try {
+        const users = await userService.findAll()
+        res.status(200).send(users)
+        
+    } catch (error) {
+        console.log("Erro ao buscar usuários", error)
+        res.status(500).send({ message: "Erro interno no servidor" })
     }
 
-    res.send(users)
 }
 
 const findById = async (req, res) => {
