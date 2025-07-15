@@ -2,12 +2,12 @@ const WorkShift = require('../models/WorkShift')
 
 const create = (body) => WorkShift.create(body)
 
-const findById = async (id) => {
-    return await WorkShift.findById(id)
+const findById = (id) => {
+    return WorkShift.findById(id)
 }
 
-const findByStartAndEndTime = async ( startTime, endTime ) => {
-    return await WorkShift.findOne({ startTime, endTime })
+const findByStartAndEndTime = ( startTime, endTime ) => {
+    return WorkShift.findOne({ startTime, endTime })
 }
 
 const findAllWorkShift = () => WorkShift.find()
