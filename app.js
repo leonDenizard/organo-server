@@ -1,7 +1,10 @@
 const express = require('express');
+
 const userRoute = require('./src/routes/user.route');
 const scheduleRoute = require('./src/routes/schedule.route');
 const workShiftRoute = require('./src/routes/workShift.route')
+const supervisorRoute = require('./src/routes/supervisor.route')
+
 const Schedule = require('./src/models/Schedule');
 const cors = require('cors');
 const connectDatabase = require('./src/database/db');
@@ -41,6 +44,7 @@ app.use(express.urlencoded({ limit: '50mb', extended: true }));
 app.use('/api/user', userRoute);
 app.use('/api/schedule', scheduleRoute);
 app.use('/api/workShift', workShiftRoute)
+app.use('/api/supervisor', supervisorRoute)
 
 app.use((req, res, next) => {
   const origin = req.headers.origin;

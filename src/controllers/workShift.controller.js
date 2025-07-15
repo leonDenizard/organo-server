@@ -21,7 +21,7 @@ const createWorkShift = async (req, res) => {
         })
 
     } catch (error) {
-        res.status(500).json({ message: "Erro ao criar usuario" }, error)
+        res.status(500).json({ message: "Erro ao criar usuario" })
     }
 }
 

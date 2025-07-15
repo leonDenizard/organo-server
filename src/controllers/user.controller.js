@@ -1,5 +1,4 @@
 const userService = require('../services/user.service')
-const mongoose = require('mongoose')
 
 const createUser = async (req, res) => {
 
