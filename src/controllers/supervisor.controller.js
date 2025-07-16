@@ -86,5 +86,6 @@ module.exports = {
     create,
     findAll,
     findById,
-    deleteById
+    deleteById,
+    deleteAll
 }
