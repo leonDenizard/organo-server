@@ -26,7 +26,7 @@ const create = async (req, res) => {
 
 const findAll = async (req, res) => {
 
-    const AllPositon = await positionService.findAllSuper()
+    const AllPositon = await positionService.findAllPosition()
 
     if (!AllPositon) {
         return res.status(404).json({ message: "Nenhum super cadastrado" });
@@ -55,7 +55,7 @@ const deleteById = async (req, res) => {
     const id = req.params.id;
 
     try {
-        const position = await positionService.deleteById(id); // ✅ agora sim
+        const position = await positionService.deleteById(id)
 
         if (!position) {
             return res.status(404).json({ message: "Cargo não encontrado" });

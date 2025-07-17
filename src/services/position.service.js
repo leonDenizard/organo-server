@@ -2,7 +2,7 @@ const Position = require('../models/Position')
 
 const create = (body) => Position.create(body)
 
-const findAllSuper = () => Position.find()
+const findAllPosition = () => Position.find()
 
 const findById = (id) => {
     return Position.findById(id)
@@ -21,7 +21,7 @@ const deleteById = (id) => {
 
 module.exports = {
     create,
-    findAllSuper,
+    findAllPosition,
     findById,
     findByName,
     deleteAll,

@@ -5,6 +5,7 @@ const scheduleRoute = require('./src/routes/schedule.route');
 const workShiftRoute = require('./src/routes/workShift.route')
 const supervisorRoute = require('./src/routes/supervisor.route')
 const positionRoute = require('./src/routes/position.route')
+const squadRoute = require('./src/routes/squad.route')
 
 const Schedule = require('./src/models/Schedule');
 const cors = require('cors');
@@ -47,6 +48,7 @@ app.use('/api/schedule', scheduleRoute);
 app.use('/api/workShift', workShiftRoute)
 app.use('/api/supervisor', supervisorRoute)
 app.use('/api/position', positionRoute)
+app.use('/api/squad', squadRoute)
 
 app.use((req, res, next) => {
   const origin = req.headers.origin;
