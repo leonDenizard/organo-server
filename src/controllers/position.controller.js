@@ -26,13 +26,13 @@ const create = async (req, res) => {
 
 const findAll = async (req, res) => {
 
-    const AllPositon = await positionService.findAllPosition()
+    const AllPosition = await positionService.findAllPosition()
 
-    if (!AllPositon) {
+    if (!AllPosition) {
         return res.status(404).json({ message: "Nenhum super cadastrado" });
     }
 
-    res.status(200).json({AllPositon})
+    res.status(200).json({AllPosition})
 
 }
 
