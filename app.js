@@ -45,7 +45,7 @@ app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
 app.use('/api/user', userRoute);
 app.use('/api/schedule', scheduleRoute);
-app.use('/api/workShift', workShiftRoute)
+app.use('/api/work-shift', workShiftRoute)
 app.use('/api/supervisor', supervisorRoute)
 app.use('/api/position', positionRoute)
 app.use('/api/squad', squadRoute)
