@@ -3,7 +3,7 @@ const userService = require('../services/user.service')
 const createUser = async (req, res) => {
 
     try {
-        const { uid, name, whatsapp, slack, email, time, role, manager, photoUrl, surname, birthday, child, admin, interval } = req.body
+        const { uid, name, whatsapp, slack, email, time, role, squad, manager, photoUrl, surname, birthday, child, admin, interval } = req.body
 
         const userRegistered = await userService.findById(uid)
 
@@ -28,6 +28,7 @@ const createUser = async (req, res) => {
                 email,
                 time,
                 role,
+                squad,
                 manager,
                 photoUrl,
                 surname,

@@ -24,6 +24,9 @@ const UserSchema = new mongoose.Schema({
     role: {
         type: String,
     },
+    squad: {
+        type: String,
+    },
     manager: {
         type: String,
     },
