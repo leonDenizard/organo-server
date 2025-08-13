@@ -50,9 +50,9 @@ const findAll = async (req, res) => {
 
 const updateSchedule = async (req, res) => {
     try {
-        const { date, uid } = req.body; // Recebe apenas UM UID
+        const { date, uid } = req.body;
 
-        // Busca o documento da escala
+        // Busca apenas o documento alvo
         const scheduleDoc = await ScheduleModel.findOne();
 
         if (!scheduleDoc) {
@@ -62,28 +62,39 @@ const updateSchedule = async (req, res) => {
         // Obtém a escala do dia específico ou cria um array vazio
         const scheduleForDate = scheduleDoc.schedule.get(date) || [];
 
+        let newScheduleForDate;
         if (scheduleForDate.includes(uid)) {
             // Remove o UID se já estiver na lista (toggle)
-            scheduleDoc.schedule.set(date, scheduleForDate.filter(u => u !== uid));
+            newScheduleForDate = scheduleForDate.filter(u => u !== uid);
         } else {
             // Adiciona o UID se não estiver presente
-            scheduleForDate.push(uid);
-            scheduleDoc.schedule.set(date, scheduleForDate);
+            newScheduleForDate = [...scheduleForDate, uid];
         }
 
-        await scheduleDoc.save();
+        // Faz o update diretamente no banco sem depender da versão __v
+        const updated = await ScheduleModel.findOneAndUpdate(
+            { _id: scheduleDoc._id }, // filtro
+            { $set: { [`schedule.${date}`]: newScheduleForDate } }, // atualização direta no campo aninhado
+            { new: true } // retorna o doc atualizado
+        );
 
-        res.json({ success: true, message: "Escala atualizada com sucesso!", schedule: scheduleDoc.schedule.get(date) });
+        res.json({ 
+            success: true, 
+            message: "Escala atualizada com sucesso!", 
+            schedule: updated.schedule.get(date) 
+        });
+
     } catch (error) {
         res.status(500).json({ error: "Erro ao atualizar escala", details: error.message });
     }
 };
 
+
 const findByDate = async (req, res) => {
     const date = req.params.date; // Pega a data da URL
 
     try {
-        const schedule = await scheduleService.findByDate(date); // Chama o serviço para buscar no banco
+        const schedule = await scheduleService.findByDate(date);
 
         if (!schedule) {
             return res.status(404).json({ message: "Nenhuma escala encontrada para essa data." });
