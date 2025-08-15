@@ -24,9 +24,10 @@ const UserSchema = new mongoose.Schema({
     role: {
         type: String,
     },
-    squad: {
-        type: String,
-    },
+    squad: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Squad'
+    }],
     manager: {
         type: String,
     },
