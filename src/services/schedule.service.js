@@ -2,12 +2,12 @@ const Schedule = require('../models/Schedule')
 
 const create = (body) => Schedule.create(body)
 
-const findById = async (uid) => {
+const findById = async (id) => {
     const schedules = await Schedule.find({})
 
     const filterSchedules = schedules.filter(schedule => {
-        for (const [date, uids] of schedule.schedule) {
-            if (uids.includes(uid)) {
+        for (const [date, ids] of schedule.schedule) {
+            if (ids.includes(id)) {
                 return true
             }
         }

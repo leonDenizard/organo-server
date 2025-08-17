@@ -1,116 +1,132 @@
-const userService = require('../services/user.service')
+const userService = require('../services/user.service');
+const sendResponse = require('../utils/response');
 
 const createUser = async (req, res) => {
-
     try {
-        const { uid, name, whatsapp, slack, email, time, role, squad, manager, photoUrl, surname, birthday, child, admin, interval } = req.body
+        const {
+            uid, name, whatsapp, slack, email, time, role,
+            squad, manager, photoUrl, surname, birthday,
+            child, admin, interval
+        } = req.body;
 
-        const userRegistered = await userService.findById(uid)
+        const userRegistered = await userService.findById(id);
 
         if (userRegistered) {
-            return res.status(400).json({ message: "Usuário já cadastrado" })
+            return sendResponse(res, 400, false, "Usuário já cadastrado");
         }
 
-        const user = await userService.create(req.body)
+        const user = await userService.create(req.body);
 
         if (!user) {
-            return res.status(400).send({ message: "Erro ao criar usuário" })
+            return sendResponse(res, 400, false, "Erro ao criar usuário");
         }
 
-        res.status(201).send({
-            message: "Usário cadastrado com sucesso",
-            user: {
-                id: res._id,
-                uid,
-                name,
-                whatsapp,
-                slack,
-                email,
-                time,
-                role,
-                squad,
-                manager,
-                photoUrl,
-                surname,
-                birthday,
-                child,
-                admin,
-                interval
-            }
-        })
+        return sendResponse(res, 201, true, "Usuário cadastrado com sucesso", {
+            id: user._id,
+            uid,
+            name,
+            whatsapp,
+            slack,
+            email,
+            time,
+            role,
+            squad,
+            manager,
+            photoUrl,
+            surname,
+            birthday,
+            child,
+            admin,
+            interval
+        });
 
     } catch (error) {
-        console.log(`Erro ao criar usuário ${error}`)
-        res.status(500).json({ message: "Erro interno no servidor", error })
-    }
-
-}
-
-const findAllUsers = async (req, res) => {
-
-    try {
-        const users = await userService.findAll()
-        res.status(200).send(users)
-        
-    } catch (error) {
-        console.log("Erro ao buscar usuários", error)
-        res.status(500).send({ message: "Erro interno no servidor" })
-    }
-
-}
-
-const findById = async (req, res) => {
-    const uid = req.params.uid;
-
-    try {
-        const user = await userService.findById(uid);
-
-        if (!user) {
-            return res.status(404).json({ message: "Usuário não encontrado" });
-        }
-
-        res.json(user);
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: "Erro ao buscar usuário" });
+        console.error(`Erro ao criar usuário: ${error}`);
+        return sendResponse(res, 500, false, "Erro interno no servidor", null, error.message);
     }
 };
 
-const deleteAll = async (req, res) => {
-    const users = await userService.deleteAll()
-
-    res.send({ message: "Usuários deletados" })
-}
-
-const findByUidAndUpdate = async (req, res) => {
-
-
+const findAllUsers = async (req, res) => {
     try {
-        const uid = req.params.uid
+        const users = await userService.findAll();
 
-        const update = req.body
-
-        const updateUser = await userService.findByUidAndUpdate(uid, update)
-
-        if (!updateUser) {
-            return res.status(404).send({ message: 'Usuário não encontrado' });
+        if (!users || users.length === 0) {
+            return sendResponse(res, 404, false, "Nenhum usuário encontrado");
         }
 
-        res.status(200).send(updateUser);
-
+        return sendResponse(res, 200, true, "Usuários encontrados", users);
     } catch (error) {
-        console.log(error),
-            res.status(500).send({ message: 'Erro ao tentar atualizar usuário' })
+        console.error("Erro ao buscar usuários:", error);
+        return sendResponse(res, 500, false, "Erro interno no servidor", null, error.message);
+    }
+};
+
+const findById = async (req, res) => {
+    const { id } = req.params;
+
+    try {
+        const user = await userService.findById(id);
+
+        if (!user) {
+            return sendResponse(res, 404, false, "Usuário não encontrado");
+        }
+
+        return sendResponse(res, 200, true, "Usuário encontrado", user);
+    } catch (error) {
+        console.error("Erro ao buscar usuário:", error);
+        return sendResponse(res, 500, false, "Erro ao buscar usuário", null, error.message);
+    }
+};
+
+const deleteById = async (req, res) => {
+
+    try {
+        const { id } = req.params
+        const user = await userService.deleteById(id)
+
+        if(!user){
+            return sendResponse(res, 404, false, "Usuário não encontrado")
+        }
+        return sendResponse(res, 200, true, "Usuário deletado", user)
+    } catch (error) {
+        return sendResponse(res, 500, false, "Erro interno ao deletar usuário", null, error.message)
     }
 
-
-
 }
+
+const deleteAll = async (req, res) => {
+    try {
+        await userService.deleteAll();
+        return sendResponse(res, 200, true, "Todos os usuários foram deletados");
+    } catch (error) {
+        console.error("Erro ao deletar usuários:", error);
+        return sendResponse(res, 500, false, "Erro interno ao deletar usuários", null, error.message);
+    }
+};
+
+const findByIDAndUpdate = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const update = req.body;
+
+        const updatedUser = await userService.findByIDAndUpdate(id, update);
+
+        if (!updatedUser) {
+            return sendResponse(res, 404, false, "Usuário não encontrado");
+        }
+
+        return sendResponse(res, 200, true, "Usuário atualizado com sucesso", updatedUser);
+    } catch (error) {
+        console.error("Erro ao atualizar usuário:", error);
+        return sendResponse(res, 500, false, "Erro ao tentar atualizar usuário", null, error.message);
+    }
+};
 
 module.exports = {
     createUser,
     findAllUsers,
     findById,
     deleteAll,
-    findByUidAndUpdate,
-}
+    findByIDAndUpdate,
+    deleteById
+};

@@ -1,5 +1,3 @@
-// utils/response.js
-
 /**
  * Helper para padronizar respostas em JSON
  * @param {object} res - response do Express

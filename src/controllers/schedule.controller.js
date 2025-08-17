@@ -1,5 +1,6 @@
 const scheduleService = require('../services/schedule.service')
 const ScheduleModel = require('../models/Schedule');
+const sendResponse = require('../utils/response');
 
 const createSchedule = async (req, res) => {
 
@@ -7,68 +8,75 @@ const createSchedule = async (req, res) => {
         const scheduleData = req.body
 
         if (!scheduleData || typeof scheduleData !== 'object' || Object.keys(scheduleData).length === 0) {
-            return res.status(400).json({ message: "Dados inválidos ou vazios" })
+            return sendResponse(res, 400, false, "Dados inválidos ou vazios")
         }
 
         const scheduleMap = new Map(Object.entries(scheduleData))
         const schedule = await scheduleService.create({ schedule: scheduleMap });
 
-        res.status(201).send({ message: "Escala criada" })
-
+        return sendResponse(res, 201, true, "Escala criada com sucesso", schedule)
 
     } catch (error) {
-        console.error("Erro ao criar escala:", error);
-        res.status(500).json({ message: "Erro interno do servidor." });
+        return sendResponse(res, 500, false, "Erro ao criar escala", null, error.message)
     }
 
 }
 
-const findByUID = async (req, res) => {
+const findByID = async (req, res) => {
 
-    const uid = req.params.uid
+    try {
+        const {id} = req.params
 
-    const schedules = await scheduleService.findById(uid);
+    const schedules = await scheduleService.findById(id);
 
     if (!schedules || schedules.length === 0) {
-        return res.status(404).send({ message: `Nenhuma escala encontrada para UID ${uid}` });
+        return sendResponse(res, 404, false, "Nenhuma escala encontrada")
     }
 
-    //Retorna as escalas encontradas
-    res.send(schedules);
+    return sendResponse(res, 200, true, "Escala encontrada", schedules)
+    } catch (error) {
+        return sendResponse(res, 500, false, "Erro ao busca escala", null, error.message)
+    }
+    
 }
 
 const findAll = async (req, res) => {
 
-    const schedule = await scheduleService.findAll()
+    try {
+        const schedule = await scheduleService.findAll()
 
-    if(schedule){
-        res.send(schedule)
-    }else{
-        res.send({message: "Escala não encontrada"})
+    if(!schedule || schedule.length === 0){
+        return sendResponse(res, 404, false, "Nenhuma escala encontrada")
     }
+
+    return sendResponse(res, 200, true, "Escala encontrada", schedule)
+    } catch (error) {
+        return sendResponse(res, 500, false, "Erro interno no servidor - findAll", null, error.message)
+    }
+    
 }
 
 const updateSchedule = async (req, res) => {
     try {
-        const { date, uid } = req.body;
+        const { date, id } = req.body;
 
         // Busca apenas o documento alvo
         const scheduleDoc = await ScheduleModel.findOne();
 
         if (!scheduleDoc) {
-            return res.status(404).json({ message: "Nenhuma escala encontrada." });
+            return sendResponse(res, 404, false, "Nenhuma escala encontrada")
         }
 
         // Obtém a escala do dia específico ou cria um array vazio
         const scheduleForDate = scheduleDoc.schedule.get(date) || [];
 
         let newScheduleForDate;
-        if (scheduleForDate.includes(uid)) {
-            // Remove o UID se já estiver na lista (toggle)
-            newScheduleForDate = scheduleForDate.filter(u => u !== uid);
+        if (scheduleForDate.includes(id)) {
+            // Remove o id se já estiver na lista (toggle)
+            newScheduleForDate = scheduleForDate.filter(u => u !== id);
         } else {
             // Adiciona o UID se não estiver presente
-            newScheduleForDate = [...scheduleForDate, uid];
+            newScheduleForDate = [...scheduleForDate, id];
         }
 
         // Faz o update diretamente no banco sem depender da versão __v
@@ -78,32 +86,28 @@ const updateSchedule = async (req, res) => {
             { new: true } // retorna o doc atualizado
         );
 
-        res.json({ 
-            success: true, 
-            message: "Escala atualizada com sucesso!", 
-            schedule: updated.schedule.get(date) 
-        });
+        return sendResponse(res, 200, true, "Escala atualizada com sucesso", updated)
 
     } catch (error) {
-        res.status(500).json({ error: "Erro ao atualizar escala", details: error.message });
+        return sendResponse(res, 500, false, "Erro ao atualizar escala", null, error.message)
     }
 };
 
 
 const findByDate = async (req, res) => {
-    const date = req.params.date; // Pega a data da URL
+    const {date} = req.params; 
 
     try {
         const schedule = await scheduleService.findByDate(date);
 
         if (!schedule) {
-            return res.status(404).json({ message: "Nenhuma escala encontrada para essa data." });
+            return sendResponse(res, 404, false, "Nenhuma escala encontrada para essa data.")
         }
 
-        res.json(schedule); // Retorna a escala do dia
+        return sendResponse(res, 200, true, "Escala encontrada", schedule)
+    
     } catch (error) {
-        console.error("Erro ao buscar escala por data:", error);
-        res.status(500).json({ message: "Erro interno do servidor." });
+        return sendResponse(res, 500, false, "Erro ao buscar escala na data informada", date, error.message)
     }
 };
 
@@ -118,7 +122,7 @@ const findByDate = async (req, res) => {
 
 module.exports = {
     createSchedule,
-    findByUID,
+    findByID,
     findAll,
     updateSchedule,
     findByDate,

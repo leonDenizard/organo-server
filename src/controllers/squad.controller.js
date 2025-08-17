@@ -1,87 +1,93 @@
 const squadService = require('../services/squad.service')
+const sendResponse = require('../utils/response')
 
 const create = async (req, res) => {
 
     try {
 
         const { name, description } = req.body
-        console.log(req.body)
-        const squad = await squadService.findByName(name)
-        console.log(squad)
-        if (squad) {
-            return res.status(400).json({ message: "Squad já criado" })
+
+        if (!name) {
+            return sendResponse(res, 400, false, "O name do Squad é obrigatório")
         }
 
-            await squadService.create(req.body)
-        
+        const squadExists = await squadService.findByName(name)
 
-        res.status(201).send({
-            message: "Squad criado",
-            squad: name,
-            description: description
-        })
+        if (squadExists) {
+            return sendResponse(res, 409, false, "Squad já criado")
+        }
+
+        const squadCreated = await squadService.create(req.body)
+
+        return sendResponse(res, 201, true, "Squad criado com sucesso", squadCreated)
+
     } catch (error) {
-        res.status(500).json({ message: "Erro interno no servidor", error: error.message })
+        return sendResponse(res, 500, false, "Erro ao criar squad", null, error.message)
     }
 
 }
 
 const findAll = async (req, res) => {
 
-    const allSquad = await squadService.findAllSquad()
+    try {
+        const allSquad = await squadService.findAllSquad()
 
-    if (!allSquad) {
-        return res.status(404).json({ message: "Nenhum squad cadastrado" });
+        if (!allSquad) {
+            return sendResponse(res, 404, false, "Nenhum squad encontrado")
+        }
+
+        return sendResponse(res, 200, true, "Squads encontrados", allSquad)
+    } catch (error) {
+        return sendResponse(res, 500, DisposableStack, "Erro ao buscar squads", null, error.message)
     }
-
-    res.status(200).json({message: allSquad})
 
 }
 
 const findById = async (req, res) => {
 
-    const id = req.params.id
-    const squad = await squadService.findById(id)
+    try {
+        const { id } = req.params
+        const squad = await squadService.findById(id)
 
-    
+        if (!squad) {
+            return sendResponse(res, 404, false, "Squad não encontrado")
+        }
 
-    if(!squad){
-        return res.status(404).json({message: "Squad não encontrado"})
+        return sendResponse(res, 200, true, "Squad encontrado", squad)
+    } catch (error) {
+        return sendResponse(res, 500, false, "Erro ao buscar squad", null, error.message)
     }
-
-    res.status(200).json({message: "Squad encontrado", squad})
-    
 }
 
 const deleteById = async (req, res) => {
-    const id = req.params.id;
+    const {id} = req.params;
 
     try {
         const squad = await squadService.deleteById(id);
 
         if (!squad) {
-            return res.status(404).json({ message: "Squad não encontrado" });
+            return sendResponse(res, 404, false, "Squad não encontrado")
         }
 
-        res.status(200).json({
-            message: "Squad deletado com sucesso",
-            squad
-        });
+        return sendResponse(res, 200, true, "Squad deletado com sucesso", squad)
     } catch (error) {
-        console.error("Erro ao deletar Squad:", error);
-        res.status(500).json({ message: "Erro interno ao deletar Squad" });
+        return sendResponse(res, 500, false, "Erro interno ao deletar Squad", null, error.message)
     }
 };
 
 const deleteAll = async (req, res) => {
 
     try {
-        
-        await squadService.deleteAll()
 
-        res.status(200).json({message: "Squads deletados"})
+        const squad = await squadService.deleteAll()
+
+         if (!squad) {
+            return sendResponse(res, 404, false, "Nenhum Squad encontrado")
+        }
+
+        return sendResponse(res, 200, true, "Squads deletados com sucesso", squad)
     } catch (error) {
-        res.status(500).json({message: "Erro interno no servidor"})
+        return sendResponse(res, 500, false, "Erro interno ao deletar Squads", null, error.message)
     }
 }
 module.exports = {

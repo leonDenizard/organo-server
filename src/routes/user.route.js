@@ -3,8 +3,9 @@ const userController = require('../controllers/user.controller')
 
 route.post('/', userController.createUser)
 route.get('/', userController.findAllUsers)
-route.get('/:uid', userController.findById)
+route.get('/:id', userController.findById)
 route.delete('/', userController.deleteAll)
-route.patch('/:uid', userController.findByUidAndUpdate)
+route.delete('/:id', userController.deleteById)
+route.patch('/:id', userController.findByIDAndUpdate)
 
 module.exports = route
