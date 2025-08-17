@@ -1,87 +1,98 @@
 const positionService = require('../services/position.service')
+const sendResponse = require('../utils/response')
 
 const create = async (req, res) => {
 
     try {
 
         const { name } = req.body
+        if (!name) {
+            return sendResponse(res, 400, false, "O campo 'name' é obrigatório.")
+        }
         const position = await positionService.findByName(name)
 
         if (position) {
-            return res.status(400).json({ message: "Cargo já criado" })
+            return sendResponse(res, 409, false, "Cargo já existe")
         }
 
-        await positionService.create(req.body)
-        
+        const newPosition = await positionService.create(req.body)
 
-        res.status(201).send({
-            message: "Position criado",
-            super: name
-        })
+
+        return sendResponse(res, 201, true, "Cargo criado com sucesso", newPosition)
     } catch (error) {
-        res.status(500).json({ message: "Erro interno no servidor", error })
+        return sendResponse(res, 500, false, "Erro interno no servidor", null, error.message)
     }
 
 }
 
 const findAll = async (req, res) => {
 
-    const AllPosition = await positionService.findAllPosition()
+    try {
+        const AllPosition = await positionService.findAllPosition()
 
-    if (!AllPosition) {
-        return res.status(404).json({ message: "Nenhum super cadastrado" });
+        if (!AllPosition || AllPosition.lenght === 0) {
+            return sendResponse(res, 404, false, "Nenhum cargo cadastrado")
+        }
+
+        return sendResponse(res, 200, true, "Lista de cargos encontradas", AllPosition)
+    } catch (error) {
+
+        return sendResponse(res, 500, false, "Erro ao buscar cargos", null, error.message)
     }
-
-    res.status(200).json({AllPosition})
 
 }
 
 const findById = async (req, res) => {
 
-    const id = req.params.id
-    const position = await positionService.findById(id)
+    try {
+        const {id} = req.params
 
-    
-
-    if(!position){
-        return res.status(404).json({message: "Cargo não encontrado"})
+    if(!id){
+        return sendResponse(res, 400, false, "Cargo não encontrada")
     }
 
-    res.status(200).json({message: "Cargo encontrado", position})
+    const position = await positionService.findById(id)
+
+    if (!position) {
+        return sendResponse(res, 404, false, "Cargo não encontrado")
+    }
+
+    return sendResponse(res, 200, true, "Cargo encontrado", position)
+    } catch (error) {
+        return sendResponse(res, 500, false, "Erro ao buscar cargo", null, error.message)
+    }
     
 }
 
 const deleteById = async (req, res) => {
-    const id = req.params.id;
+  try {
+    const { id } = req.params;
 
-    try {
-        const position = await positionService.deleteById(id)
-
-        if (!position) {
-            return res.status(404).json({ message: "Cargo não encontrado" });
-        }
-
-        res.status(200).json({
-            message: "Cargo deletado com sucesso",
-            position
-        });
-    } catch (error) {
-        console.error("Erro ao deletar cargo:", error);
-        res.status(500).json({ message: "Erro interno ao deletar supervisor" });
+    if (!id) {
+      return sendResponse(res, 400, false, "O parâmetro 'id' é obrigatório.");
     }
+
+    const deleted = await positionService.deleteById(id);
+
+    if (!deleted) {
+      return sendResponse(res, 404, false, "Cargo não encontrado.");
+    }
+
+    return sendResponse(res, 200, true, "Cargo deletado com sucesso.", deleted);
+  } catch (error) {
+    console.error("Erro ao deletar cargo:", error);
+    return sendResponse(res, 500, false, "Erro interno no servidor.", null, error.message);
+  }
 };
 
 const deleteAll = async (req, res) => {
-
-    try {
-        
-        await positionService.deleteAll()
-
-        res.status(200).json({message: "Cargo deletados"})
-    } catch (error) {
-        res.status(500).json({message: "Erro interno no servidor"})
-    }
-}
+  try {
+    await positionService.deleteAll();
+    return sendResponse(res, 200, true, "Todos os cargos foram deletados.");
+  } catch (error) {
+    return sendResponse(res, 500, false, "Erro ao deletar cargos.", null, error.message);
+  }
+};
 module.exports = {
     create,
     findAll,
