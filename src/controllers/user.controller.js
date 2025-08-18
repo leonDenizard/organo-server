@@ -4,18 +4,27 @@ const sendResponse = require('../utils/response');
 const createUser = async (req, res) => {
     try {
         const {
-            uid, name, whatsapp, slack, email, time, role,
+            _id, uid, name, whatsapp, slack, email, time, role,
             squad, manager, photoUrl, surname, birthday,
             child, admin, interval
         } = req.body;
 
-        const userRegistered = await userService.findById(id);
 
-        if (userRegistered) {
-            return sendResponse(res, 400, false, "Usuário já cadastrado");
+
+        if (name?.trim() || email?.trim()) {
+            const existsUser = await userService.findByNameOrEmail(name, email)
+
+            if (existsUser) {
+                return sendResponse(
+                    res, 
+                    409, 
+                    false, 
+                    existsUser.name === name ? "Já existe um usuário com este nome" : "Já existe um usuário com esse e-mail")
+            }
         }
 
         const user = await userService.create(req.body);
+        console.log(user)
 
         if (!user) {
             return sendResponse(res, 400, false, "Erro ao criar usuário");
@@ -84,7 +93,7 @@ const deleteById = async (req, res) => {
         const { id } = req.params
         const user = await userService.deleteById(id)
 
-        if(!user){
+        if (!user) {
             return sendResponse(res, 404, false, "Usuário não encontrado")
         }
         return sendResponse(res, 200, true, "Usuário deletado", user)

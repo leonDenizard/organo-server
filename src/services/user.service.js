@@ -11,6 +11,15 @@ const findById = async (id) => {
     return await User.findById(id);
 };
 
+const findByNameOrEmail = async(name, email) =>{
+    return await User.findOne({
+        $or: [
+            {name: name},
+            {email: email}
+        ]
+    })
+}
+
 const deleteAll = () => User.deleteMany()
 
 const findByIDAndUpdate = (id, update) => {
@@ -28,5 +37,6 @@ module.exports = {
     findById,
     deleteAll,
     findByIDAndUpdate,
+    findByNameOrEmail,
     deleteById
 }
