@@ -10,19 +10,6 @@ const createUser = async (req, res) => {
         } = req.body;
 
 
-
-        if (name?.trim() || email?.trim()) {
-            const existsUser = await userService.findByNameOrEmail(name, email)
-
-            if (existsUser) {
-                return sendResponse(
-                    res, 
-                    409, 
-                    false, 
-                    existsUser.name === name ? "Já existe um usuário com este nome" : "Já existe um usuário com esse e-mail")
-            }
-        }
-
         const user = await userService.create(req.body);
         console.log(user)
 
@@ -87,6 +74,26 @@ const findById = async (req, res) => {
     }
 };
 
+const findByUId = async (req, res) => {
+    const {uid} = req.params
+
+    if(!uid){
+        return sendResponse(res, 404, false, "UID inválido");
+    }
+    try {
+        const result = await userService.findByUId(uid)
+
+        if(!result){
+            return sendResponse(res, 404, false, "Usuário não encontrado")
+        }
+
+        return sendResponse(res, 200, true, "Usuário encontrado", result)
+    } catch (error) {
+        return sendResponse(res, 500, false, "Erro ao buscar usuário", result, error)
+    }
+
+} 
+
 const deleteById = async (req, res) => {
 
     try {
@@ -135,6 +142,7 @@ module.exports = {
     createUser,
     findAllUsers,
     findById,
+    findByUId,
     deleteAll,
     findByIDAndUpdate,
     deleteById

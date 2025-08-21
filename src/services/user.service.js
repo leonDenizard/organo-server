@@ -11,11 +11,16 @@ const findById = async (id) => {
     return await User.findById(id);
 };
 
-const findByNameOrEmail = async(name, email) =>{
+const findByUId = async (uid) => {
+
+    return await User.findOne({ uid });
+};
+
+const findByNameOrEmail = async (name, email) => {
     return await User.findOne({
         $or: [
-            {name: name},
-            {email: email}
+            { name: name },
+            { email: email }
         ]
     })
 }
@@ -23,18 +28,19 @@ const findByNameOrEmail = async(name, email) =>{
 const deleteAll = () => User.deleteMany()
 
 const findByIDAndUpdate = (id, update) => {
-    
+
     if (!mongoose.Types.ObjectId.isValid(id)) return null;
     return User.findOneAndUpdate({ _id: id }, update, { new: true })
 }
 
 const deleteById = (id) => {
-    return User.findOneAndDelete({_id: id})
+    return User.findOneAndDelete({ _id: id })
 }
 module.exports = {
     create,
     findAll,
     findById,
+    findByUId,
     deleteAll,
     findByIDAndUpdate,
     findByNameOrEmail,
