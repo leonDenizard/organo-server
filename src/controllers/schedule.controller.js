@@ -67,23 +67,21 @@ const updateSchedule = async (req, res) => {
             return sendResponse(res, 404, false, "Nenhuma escala encontrada")
         }
 
-        // Obtém a escala do dia específico ou cria um array vazio
+        
         const scheduleForDate = scheduleDoc.schedule.get(date) || [];
 
         let newScheduleForDate;
         if (scheduleForDate.includes(id)) {
-            // Remove o id se já estiver na lista (toggle)
+            
             newScheduleForDate = scheduleForDate.filter(u => u !== id);
         } else {
-            // Adiciona o UID se não estiver presente
             newScheduleForDate = [...scheduleForDate, id];
         }
 
-        // Faz o update diretamente no banco sem depender da versão __v
         const updated = await ScheduleModel.findOneAndUpdate(
-            { _id: scheduleDoc._id }, // filtro
-            { $set: { [`schedule.${date}`]: newScheduleForDate } }, // atualização direta no campo aninhado
-            { new: true } // retorna o doc atualizado
+            { _id: scheduleDoc._id },
+            { $set: { [`schedule.${date}`]: newScheduleForDate } },
+            { new: true } 
         );
 
         return sendResponse(res, 200, true, "Escala atualizada com sucesso", updated)

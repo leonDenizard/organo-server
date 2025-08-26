@@ -1,11 +1,18 @@
-const mongoose = require('mongoose')
+const mongoose = require("mongoose");
+require("dotenv").config();
+
+const MONGO_URI = process.env.MONGO_URI;
 
 const connectDatabase = () => {
-    console.log("Wait connecting to the database")
+  console.log("Wait connecting to the database");
 
-    mongoose.connect("mongodb+srv://root:pkBRqSP1pbo3pnp9@cluster0.crpls.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0")
-    .then(() => console.log("DB connected"))
-    .catch((error) => console.log("Error connected", error))
-}
+  mongoose
+    .connect(MONGO_URI, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    })
+    .then(() => console.log("✅ DB connected"))
+    .catch((error) => console.log("❌ Error connecting", error));
+};
 
-module.exports = connectDatabase
+module.exports = connectDatabase;

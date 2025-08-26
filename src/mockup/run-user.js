@@ -1,5 +1,5 @@
-import fs from "fs";
-import axios from "axios";
+const fs = require("fs");
+const axios = require("axios");
 
 async function sendPayloads() {
   const data = JSON.parse(fs.readFileSync("users.json", "utf-8"));
