@@ -4,6 +4,7 @@ const GlobalScheduleSchema = new mongoose.Schema({
     date: {
         type: String,
         required: true,
+        unique: true,
     },
     dayOfWeek: {
         type: String
