@@ -3,5 +3,6 @@ const globalScheduleController = require('../controllers/globalSchedule.controll
 
 route.post('/', globalScheduleController.create)
 route.get('/', globalScheduleController.getAll)
+route.get('/:id', globalScheduleController.getByUser)
 
 module.exports = route

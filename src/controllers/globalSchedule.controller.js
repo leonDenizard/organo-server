@@ -1,4 +1,5 @@
-const GlobalScheduleService = require("../services/globalSchedule.service")
+const mongoose = require("mongoose");
+const globalScheduleService = require("../services/globalSchedule.service")
 const sendResponse = require("../utils/response")
 
 const create = async (req, res) => {
@@ -10,10 +11,29 @@ const create = async (req, res) => {
       schedules = [schedules];
     }
 
+    //convertendo as ref para object_id
+    function toObjectId(id) {
+      if (mongoose.Types.ObjectId.isValid(id)) {
+        return new mongoose.Types.ObjectId(id);
+      } else {
+        throw new Error(`ID inválido: ${id}`);
+      }
+    }
+
+    schedules = schedules.map(schedule => {
+      schedule.shifts = schedule.shifts.map(shift => ({
+        ...shift,
+        userId: toObjectId(shift.userId),
+        status: toObjectId(shift.status),
+        time: toObjectId(shift.time)
+      }));
+      return schedule;
+    });
+
     console.log(schedules)
     const dates = schedules.map(s => s.date)
 
-    const existing = await GlobalScheduleService.findByDate(dates)
+    const existing = await globalScheduleService.findByDate(dates)
 
     if (existing && existing.length > 0) {
       const existingDates = existing.map(e => e.date);
@@ -23,7 +43,7 @@ const create = async (req, res) => {
     // for (const schedule of schedules) {
     //   console.log(schedule.date)
 
-    //   const exists = await GlobalScheduleService.findByDate(schedule.date)
+    //   const exists = await globalScheduleService.findByDate(schedule.date)
     //   if (exists) {
     //     return sendResponse(res, 200, false, "Data já existe na escala", schedule.date);
     //   }
@@ -41,7 +61,7 @@ const create = async (req, res) => {
     }
 
     // Cria todas de uma vez
-    const newSchedules = await GlobalScheduleService.create(schedules);
+    const newSchedules = await globalScheduleService.create(schedules);
 
     return sendResponse(res, 201, true, "Escalas criadas com sucesso", newSchedules);
 
@@ -53,9 +73,9 @@ const create = async (req, res) => {
 const getAll = async (req, res) => {
 
   try {
-    const data = await GlobalScheduleService.getAll()
+    const data = await globalScheduleService.getAll()
 
-    if(data.length === 0){
+    if (data.length === 0) {
       return sendResponse(res, 400, false, "Nenhuma escala encontrada")
     }
 
@@ -64,7 +84,32 @@ const getAll = async (req, res) => {
   } catch (error) {
     return sendResponse(res, 500, false, "Erro interno no servidor", null, error.message)
   }
-  
+
 }
 
-module.exports = { create, getAll }
+// Buscando a escala de um usuário
+
+const getByUser = async (req, res) => {
+
+  try {
+    const { id } = req.params
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return sendResponse(res, 400, false, "ID inválido")
+    }
+
+    console.log(id)
+    const getUser = await globalScheduleService.getByUser(id)
+    console.log(getUser)
+
+    if (!getUser) {
+      return sendResponse(res, 404, false, "usuário não encontrado")
+    }
+
+    return sendResponse(res, 200, true, "usuário encontrado", getUser)
+  } catch (error) {
+    return sendResponse(res, 500, false, "Erro interno no servidor", null, error.message)
+  }
+}
+
+module.exports = { create, getAll, getByUser }
