@@ -7,6 +7,7 @@ const supervisorRoute = require('./src/routes/supervisor.route')
 const positionRoute = require('./src/routes/position.route')
 const squadRoute = require('./src/routes/squad.route')
 const globalScheduleRoute = require('./src/routes/globalSchedule.route')
+const statusRoute = require('./src/routes/status.route')
 
 const Schedule = require('./src/models/Schedule');
 const cors = require('cors');
@@ -51,6 +52,7 @@ app.use('/api/supervisor', supervisorRoute)
 app.use('/api/position', positionRoute)
 app.use('/api/squad', squadRoute)
 app.use('/api/global-schedule', globalScheduleRoute)
+app.use('/api/status', statusRoute)
 
 app.use((req, res, next) => {
   const origin = req.headers.origin;
