@@ -98,9 +98,9 @@ const getByUser = async (req, res) => {
       return sendResponse(res, 400, false, "ID inválido")
     }
 
-    console.log(id)
+
     const getUser = await globalScheduleService.getByUser(id)
-    console.log(getUser)
+
 
     if (!getUser) {
       return sendResponse(res, 404, false, "usuário não encontrado")
