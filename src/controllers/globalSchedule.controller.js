@@ -124,4 +124,22 @@ const getByDate = async (req, res) => {
   }
 }
 
-module.exports = { create, getAll, getByUser, getByDate }
+const updateStatus = async (req, res) => {
+
+  try {
+    const {id, date} = req.params
+    const {statusId} = req.body
+
+    const update = await globalScheduleService.updateStatus(id, date, statusId)
+
+    if(!update){
+      return sendResponse(res, 404, false, "Nenhum usuário encontrado")
+    }
+    
+    sendResponse(res, 200, true, `Resultado ${date}`, update)
+  } catch (error) {
+    sendResponse(res, 500, false, "Erro interno no servidor", null, error.message)
+  }
+}
+
+module.exports = { create, getAll, getByUser, getByDate, updateStatus }

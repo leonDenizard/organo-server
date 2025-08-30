@@ -47,12 +47,25 @@ const getByUser = async (userId) => {
 // }
 
 const getByDate = (date) => {
-  return GlobalSchedule.find({date})
-  .populate("shifts.userId")
-  .populate("shifts.status")
-  .populate("shifts.status")
-  .populate("shifts.time")
-  .lean()
+  return GlobalSchedule.find({ date })
+    .populate("shifts.userId")
+    .populate("shifts.status")
+    .populate("shifts.status")
+    .populate("shifts.time")
+    .lean()
+}
+
+const updateStatus = (userId, date, statusId) => {
+  return GlobalSchedule.findOneAndUpdate({
+    date: date,
+    "shifts.userId": userId
+  },{
+    $set: {"shifts.$.status": statusId}
+  }, 
+  {new: true})
+    .populate("shifts.userId", "name")
+    .populate("shifts.status", "name code")
+
 }
 
 
@@ -62,4 +75,5 @@ module.exports = {
   getAll,
   getByUser,
   getByDate,
+  updateStatus
 }
