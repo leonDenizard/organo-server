@@ -112,4 +112,16 @@ const getByUser = async (req, res) => {
   }
 }
 
-module.exports = { create, getAll, getByUser }
+const getByDate = async (req, res) => {
+
+  try {
+    const {date} = req.params
+
+    const data = await globalScheduleService.getByDate(date)
+    sendResponse(res, 200, true, `Escala para o dia ${date}`, data)
+  } catch (error) {
+    sendResponse(res, 500, false, "Erro interno no servidor", null, error.message)
+  }
+}
+
+module.exports = { create, getAll, getByUser, getByDate }

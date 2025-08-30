@@ -46,10 +46,20 @@ const getByUser = async (userId) => {
 //   ])
 // }
 
+const getByDate = (date) => {
+  return GlobalSchedule.find({date})
+  .populate("shifts.userId")
+  .populate("shifts.status")
+  .populate("shifts.status")
+  .populate("shifts.time")
+  .lean()
+}
+
 
 module.exports = {
   create,
   findByDate,
   getAll,
-  getByUser
+  getByUser,
+  getByDate,
 }
