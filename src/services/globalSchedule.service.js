@@ -55,16 +55,21 @@ const getByDate = (date) => {
     .lean()
 }
 
-const updateStatus = (userId, date, statusId) => {
-  return GlobalSchedule.findOneAndUpdate({
-    date: date,
-    "shifts.userId": userId
-  },{
-    $set: {"shifts.$.status": statusId}
-  }, 
-  {new: true})
+const updateStatus = async (userId, date, statusId) => {
+  const doc = await GlobalSchedule.findOneAndUpdate(
+    { date: date, "shifts.userId": userId },
+    { $set: { "shifts.$.status": statusId } },
+    { new: true }
+  )
     .populate("shifts.userId", "name")
-    .populate("shifts.status", "name code")
+    .populate("shifts.status", "name code");
+
+  if (!doc) return null;
+
+  return {
+    ...doc.toObject(),
+    shifts: doc.shifts.filter(s => String(s.userId?._id) === String(userId))
+  };
 
 }
 
