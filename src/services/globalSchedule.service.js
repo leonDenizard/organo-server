@@ -1,4 +1,3 @@
-const { default: mongoose } = require('mongoose')
 const GlobalSchedule = require('../models/GlobalSchedule')
 
 const create = (body) => GlobalSchedule.create(body)
@@ -12,6 +11,9 @@ const findByDate = (date) => {
 
 const getAll = () => {
   return GlobalSchedule.find()
+  .populate("shifts.userId", "name photoUrl")
+  .populate("shifts.status")
+  .populate("shifts.time")
 }
 
 const getByUser = async (userId) => {
