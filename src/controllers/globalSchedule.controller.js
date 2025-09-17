@@ -124,22 +124,22 @@ const getByDate = async (req, res) => {
   }
 }
 
-const updateStatus = async (req, res) => {
+const updateShift = async (req, res) => {
 
   try {
-    const {id, date} = req.params
-    const {statusId} = req.body
+    const {shiftId } = req.params
+    const {statusId, timeId} = req.body
 
-    const update = await globalScheduleService.updateStatus(id, date, statusId)
+    const update = await globalScheduleService.updateShift(shiftId, statusId, timeId)
 
     if(!update){
-      return sendResponse(res, 404, false, "Nenhum usuário encontrado")
+      return sendResponse(res, 404, false, "Nenhum usuário encontrado", { shiftId })
     }
     
-    sendResponse(res, 200, true, `Resultado ${date}`, update)
+    sendResponse(res, 200, true, `Resultado`, update)
   } catch (error) {
     sendResponse(res, 500, false, "Erro interno no servidor", null, error.message)
   }
 }
 
-module.exports = { create, getAll, getByUser, getByDate, updateStatus }
+module.exports = { create, getAll, getByUser, getByDate, updateShift }

@@ -1,3 +1,4 @@
+const { default: mongoose } = require('mongoose')
 const GlobalSchedule = require('../models/GlobalSchedule')
 
 const create = (body) => GlobalSchedule.create(body)
@@ -11,9 +12,9 @@ const findByDate = (date) => {
 
 const getAll = () => {
   return GlobalSchedule.find()
-  .populate("shifts.userId", "name photoUrl")
-  .populate("shifts.status")
-  .populate("shifts.time")
+    .populate("shifts.userId", "name photoUrl surname")
+    .populate("shifts.status")
+    .populate("shifts.time")
 }
 
 const getByUser = async (userId) => {
@@ -57,23 +58,27 @@ const getByDate = (date) => {
     .lean()
 }
 
-const updateStatus = async (userId, date, statusId) => {
+const updateShift = async (shiftId, statusId, timeId) => {
+  const updateFields = {};
+  if (statusId) updateFields["shifts.$.status"] = statusId;
+  if (timeId) updateFields["shifts.$.time"] = timeId;
+
   const doc = await GlobalSchedule.findOneAndUpdate(
-    { date: date, "shifts.userId": userId },
-    { $set: { "shifts.$.status": statusId } },
+    { "shifts._id": new mongoose.Types.ObjectId(shiftId) },
+    { $set: updateFields },
     { new: true }
   )
     .populate("shifts.userId", "name")
-    .populate("shifts.status", "name code");
+    .populate("shifts.status", "name code")
+    .populate("shifts.time", "startTime endTime");
 
   if (!doc) return null;
 
   return {
     ...doc.toObject(),
-    shifts: doc.shifts.filter(s => String(s.userId?._id) === String(userId))
+    shifts: doc.shifts.filter(s => String(s._id) === String(shiftId))
   };
-
-}
+};
 
 
 module.exports = {
@@ -82,5 +87,5 @@ module.exports = {
   getAll,
   getByUser,
   getByDate,
-  updateStatus
+  updateShift
 }
