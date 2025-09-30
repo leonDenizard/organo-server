@@ -29,7 +29,8 @@ const UserSchema = new mongoose.Schema({
         ref: 'Squad'
     }],
     manager: {
-        type: String,
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Supervisor'
     },
     photoUrl: {
         type: String

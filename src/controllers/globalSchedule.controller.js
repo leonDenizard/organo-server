@@ -142,4 +142,19 @@ const updateShift = async (req, res) => {
   }
 }
 
-module.exports = { create, getAll, getByUser, getByDate, updateShift }
+const deleteSchedule = async (req, res) => {
+  try {
+    
+    const deletedSchedule = await globalScheduleService.deleteSchedule()
+
+    if(!deletedSchedule){
+      return sendResponse(res, 400, false, "Não foi possível deletar escala")
+    }
+
+    sendResponse(res, 200, true, "Escala excluida com sucesso", deleteSchedule)
+  } catch (error) {
+    sendResponse(res, 500, false, "Erro interno no servidor", null, error.message)
+  }
+}
+
+module.exports = { create, getAll, getByUser, getByDate, updateShift, deleteSchedule }

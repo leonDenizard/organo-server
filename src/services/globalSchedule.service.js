@@ -12,7 +12,7 @@ const findByDate = (date) => {
 
 const getAll = () => {
   return GlobalSchedule.find()
-    .populate("shifts.userId", "name photoUrl surname")
+    .populate("shifts.userId", "name photoUrl surname squad manager")
     .populate("shifts.status")
     .populate("shifts.time")
 }
@@ -80,6 +80,8 @@ const updateShift = async (shiftId, statusId, timeId) => {
   };
 };
 
+const deleteSchedule = async () => GlobalSchedule.deleteMany()
+
 
 module.exports = {
   create,
@@ -87,5 +89,6 @@ module.exports = {
   getAll,
   getByUser,
   getByDate,
-  updateShift
+  updateShift,
+  deleteSchedule
 }

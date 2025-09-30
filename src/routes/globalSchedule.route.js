@@ -6,5 +6,6 @@ route.get('/', globalScheduleController.getAll)
 route.get('/:id', globalScheduleController.getByUser)
 route.get('/filter-by-date/:date', globalScheduleController.getByDate)
 route.patch('/update-status/:shiftId', globalScheduleController.updateShift)
+route.delete('/', globalScheduleController.deleteSchedule)
 
 module.exports = route
