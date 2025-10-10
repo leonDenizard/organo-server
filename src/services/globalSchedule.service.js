@@ -82,6 +82,21 @@ const updateShift = async (shiftId, statusId, timeId) => {
 
 const deleteSchedule = async () => GlobalSchedule.deleteMany()
 
+const updateShiftBulk = async ({ shiftId, statusId, timeId }) => {
+  const bulkOps = shiftId.map((id) => ({
+    updateOne: {
+      filter: { _id: id },
+      update: { $set: { statusId, timeId } }
+    }
+  }));
+
+  if (bulkOps.length === 0) {
+    throw new Error("Nenhum shiftId fornecido para atualização");
+  }
+
+  const result = await GlobalSchedule.bulkWrite(bulkOps);
+  return result
+};
 
 module.exports = {
   create,
@@ -90,5 +105,6 @@ module.exports = {
   getByUser,
   getByDate,
   updateShift,
-  deleteSchedule
+  deleteSchedule,
+  updateShiftBulk
 }

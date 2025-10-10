@@ -115,7 +115,7 @@ const getByUser = async (req, res) => {
 const getByDate = async (req, res) => {
 
   try {
-    const {date} = req.params
+    const { date } = req.params
 
     const data = await globalScheduleService.getByDate(date)
     sendResponse(res, 200, true, `Escala para o dia ${date}`, data)
@@ -127,15 +127,15 @@ const getByDate = async (req, res) => {
 const updateShift = async (req, res) => {
 
   try {
-    const {shiftId } = req.params
-    const {statusId, timeId} = req.body
+    const { shiftId } = req.params
+    const { statusId, timeId } = req.body
 
     const update = await globalScheduleService.updateShift(shiftId, statusId, timeId)
 
-    if(!update){
+    if (!update) {
       return sendResponse(res, 404, false, "Nenhum usuário encontrado", { shiftId })
     }
-    
+
     sendResponse(res, 200, true, `Resultado`, update)
   } catch (error) {
     sendResponse(res, 500, false, "Erro interno no servidor", null, error.message)
@@ -144,10 +144,10 @@ const updateShift = async (req, res) => {
 
 const deleteSchedule = async (req, res) => {
   try {
-    
+
     const deletedSchedule = await globalScheduleService.deleteSchedule()
 
-    if(!deletedSchedule){
+    if (!deletedSchedule) {
       return sendResponse(res, 400, false, "Não foi possível deletar escala")
     }
 
@@ -157,4 +157,28 @@ const deleteSchedule = async (req, res) => {
   }
 }
 
-module.exports = { create, getAll, getByUser, getByDate, updateShift, deleteSchedule }
+const updateShiftBulk = async (req, res) => {
+
+  
+  try {
+    const { shiftId, statusId, timeId } = req.body;
+
+    if (!shiftId || !Array.isArray(shiftId) || shiftId.length === 0) {
+      return sendResponse(res, 400, false, "Nenhum shiftId válido foi enviado");
+    }
+    
+
+    const result = await globalScheduleService.updateShiftBulk({ shiftId, statusId, timeId })
+   
+    //shiftid ["68e6fba4a5d732da89ee3ea0", "68e6fba4a5d732da89ee3ea1", "68e6fba4a5d732da89ee3ea2"]
+    //statusId 68af8d8ab8fed86bded55a85 working
+    //timeId 68ad18559e7a371dd002d165 10-19
+
+    return sendResponse(res, 200, true, "Atualizações concluídas", result);
+
+  } catch (error) {
+    sendResponse(res, 500, false, "Erro interno no servidor", null, error.message);
+  }
+}
+
+module.exports = { create, getAll, getByUser, getByDate, updateShift, deleteSchedule, updateShiftBulk }
