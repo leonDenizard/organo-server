@@ -163,7 +163,7 @@ const updateShiftBulk = async (req, res) => {
   try {
     const { shiftId, statusId, timeId } = req.body;
 
-    if (!shiftId || !Array.isArray(shiftId) || shiftId.length === 0) {
+    if (!shiftId || shiftId.length === 0) {
       return sendResponse(res, 400, false, "Nenhum shiftId válido foi enviado");
     }
     

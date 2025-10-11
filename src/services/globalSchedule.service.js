@@ -86,9 +86,12 @@ const updateShiftBulk = async ({ shiftId, statusId, timeId }) => {
   // depuraando:
   //console.log("Atualizando shifts:", shiftId)
 
-  // Atualiza todos os shifts dentro do array "shifts" que tenham _id correspondente
+  //garantido que o shiftId seja um array
+
+  const shiftIds = Array.isArray(shiftId) ? shiftId : [shiftId]
+
   const result = await GlobalSchedule.updateMany(
-    { "shifts._id": { $in: shiftId } },
+    { "shifts._id": { $in: shiftIds } },
     {
       $set: {
         "shifts.$[elem].status": statusId,
@@ -96,7 +99,7 @@ const updateShiftBulk = async ({ shiftId, statusId, timeId }) => {
       },
     },
     {
-      arrayFilters: [{ "elem._id": { $in: shiftId.map(id => new mongoose.Types.ObjectId(id)) } }],
+      arrayFilters: [{ "elem._id": { $in: shiftIds.map(id => new mongoose.Types.ObjectId(id)) } }],
       multi: true,
     }
   )
