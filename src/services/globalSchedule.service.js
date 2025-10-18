@@ -58,6 +58,18 @@ const getByDate = (date) => {
     .lean()
 }
 
+const updateByDate = async (date, data) => {
+  return GlobalSchedule.findOneAndUpdate(
+    { date },
+    { $set: data },
+    { new: true }
+  )
+    .populate("shifts.userId", "name photoUrl surname squad manager")
+    .populate("shifts.status")
+    .populate("shifts.time")
+    .lean();
+};
+
 const updateShift = async (shiftId, statusId, timeId) => {
   const updateFields = {}
   if (statusId) updateFields["shifts.$.status"] = statusId
@@ -125,5 +137,6 @@ module.exports = {
   getByDate,
   updateShift,
   deleteSchedule,
-  updateShiftBulk
+  updateShiftBulk,
+  updateByDate
 }

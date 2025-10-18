@@ -4,71 +4,64 @@ const sendResponse = require("../utils/response")
 
 const create = async (req, res) => {
   try {
-    let schedules = req.body;
+    let schedules = Array.isArray(req.body) ? req.body : [req.body];
 
-    // Se o body for objeto único, transforma em array
-    if (!Array.isArray(schedules)) {
-      schedules = [schedules];
-    }
-
-    //convertendo as ref para object_id
-    function toObjectId(id) {
-      if (mongoose.Types.ObjectId.isValid(id)) {
-        return new mongoose.Types.ObjectId(id);
-      } else {
-        throw new Error(`ID inválido: ${id}`);
-      }
-    }
-
-    schedules = schedules.map(schedule => {
-      schedule.shifts = schedule.shifts.map(shift => ({
-        ...shift,
-        userId: toObjectId(shift.userId),
-        status: toObjectId(shift.status),
-        time: toObjectId(shift.time)
-      }));
-      return schedule;
-    });
-
-    console.log(schedules)
-    const dates = schedules.map(s => s.date)
-
-    const existing = await globalScheduleService.findByDate(dates)
-
-    if (existing && existing.length > 0) {
-      const existingDates = existing.map(e => e.date);
-      return sendResponse(res, 400, false, "Datas já existem", existingDates);
-    }
-
-    // for (const schedule of schedules) {
-    //   console.log(schedule.date)
-
-    //   const exists = await globalScheduleService.findByDate(schedule.date)
-    //   if (exists) {
-    //     return sendResponse(res, 200, false, "Data já existe na escala", schedule.date);
-    //   }
-    // }
-
+    const toObjectId = (id) =>
+      mongoose.Types.ObjectId.isValid(id)
+        ? new mongoose.Types.ObjectId(id)
+        : (() => {
+            throw new Error(`ID inválido: ${id}`);
+          })();
 
     for (const schedule of schedules) {
+      const existing = await globalScheduleService.findByDate(schedule.date);
 
-      if (!schedule.date) {
-        return sendResponse(res, 400, false, "Cada escala precisa ter 'date'");
-      }
-      if (!schedule.shifts || !Array.isArray(schedule.shifts)) {
-        return sendResponse(res, 400, false, "Cada escala precisa ter shifts");
+      if (!existing) {
+        // 👉 se o dia não existe, cria novo
+        schedule.shifts = schedule.shifts.map((shift) => ({
+          ...shift,
+          userId: toObjectId(shift.userId),
+          status: toObjectId(shift.status),
+          time: toObjectId(shift.time),
+        }));
+        await globalScheduleService.create(schedule);
+      } else {
+        // 👉 se já existe, faz merge
+        const mergedShifts = [...existing.shifts];
+
+        for (const newShift of schedule.shifts) {
+          const idx = existing.shifts.findIndex(
+            (s) => s.userId.toString() === newShift.userId
+          );
+
+          if (idx === -1) {
+            // novo user — adiciona
+            mergedShifts.push({
+              ...newShift,
+              userId: toObjectId(newShift.userId),
+              status: toObjectId(newShift.status),
+              time: toObjectId(newShift.time),
+            });
+          } else {
+            // user existente — atualiza
+            mergedShifts[idx].status = toObjectId(newShift.status);
+            mergedShifts[idx].time = toObjectId(newShift.time);
+          }
+        }
+
+        await globalScheduleService.updateByDate(schedule.date, {
+          shifts: mergedShifts,
+        });
       }
     }
 
-    // Cria todas de uma vez
-    const newSchedules = await globalScheduleService.create(schedules);
-
-    return sendResponse(res, 201, true, "Escalas criadas com sucesso", newSchedules);
-
+    return sendResponse(res, 201, true, "Escalas mescladas/criadas com sucesso");
   } catch (error) {
-    return sendResponse(res, 500, false, "Erro ao criar escalas", null, error.message);
+    console.error("Erro ao criar/mesclar escala:", error);
+    return sendResponse(res, 500, false, "Erro ao criar/mesclar escala", null, error.message);
   }
-}
+};
+
 
 const getAll = async (req, res) => {
 
