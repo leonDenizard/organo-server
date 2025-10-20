@@ -129,6 +129,24 @@ const updateShiftBulk = async ({ shiftId, statusId, timeId }) => {
   }
 }
 
+const deleteScheduleByID = async (id) => {
+
+
+  // const scheduleDeleted = await GlobalSchedule.find({
+  //   "shifts.userId": id
+  // })
+
+  const result = await GlobalSchedule.updateMany(
+    { "shifts.userId" : id},
+    { $pull: { shifts: { userId: id } } })
+
+  return {
+    // deletedSchedules: scheduleDeleted, 
+    result,
+  }
+
+}
+
 module.exports = {
   create,
   findByDate,
@@ -138,5 +156,6 @@ module.exports = {
   updateShift,
   deleteSchedule,
   updateShiftBulk,
-  updateByDate
+  updateByDate,
+  deleteScheduleByID
 }

@@ -17,7 +17,7 @@ const create = async (req, res) => {
       const existing = await globalScheduleService.findByDate(schedule.date);
 
       if (!existing) {
-        // 👉 se o dia não existe, cria novo
+        // se o dia não existe, cria novo
         schedule.shifts = schedule.shifts.map((shift) => ({
           ...shift,
           userId: toObjectId(shift.userId),
@@ -26,7 +26,7 @@ const create = async (req, res) => {
         }));
         await globalScheduleService.create(schedule);
       } else {
-        // 👉 se já existe, faz merge
+        // se já existe, faz merge
         const mergedShifts = [...existing.shifts];
 
         for (const newShift of schedule.shifts) {
@@ -174,4 +174,29 @@ const updateShiftBulk = async (req, res) => {
   }
 }
 
-module.exports = { create, getAll, getByUser, getByDate, updateShift, deleteSchedule, updateShiftBulk }
+const deleteScheduleByID = async (req, res) => {
+  try {
+    const {id} = req.params
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return sendResponse(res, 400, false, "ID inválido")
+    }
+
+    const result = await globalScheduleService.deleteScheduleByID(id)
+
+    return sendResponse(res, 200, true, "Usuário deletado com sucesso", result);
+  } catch (error) {
+    sendResponse(res, 500, false, "Erro interno no servidor", null, error.message);
+  }
+}
+
+module.exports = { 
+  create, 
+  getAll, 
+  getByUser, 
+  getByDate, 
+  updateShift, 
+  deleteSchedule, 
+  updateShiftBulk,
+  deleteScheduleByID 
+}
