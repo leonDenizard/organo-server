@@ -129,19 +129,31 @@ const updateShiftBulk = async ({ shiftId, statusId, timeId }) => {
   }
 }
 
-const deleteScheduleByID = async (id) => {
+const deleteScheduleByID = async (ids) => {
 
 
-  // const scheduleDeleted = await GlobalSchedule.find({
-  //   "shifts.userId": id
-  // })
+  const scheduleDeleted = await GlobalSchedule.aggregate([
+    { $match: { "shifts.userId": { $in: ids.map(id => new mongoose.Types.ObjectId(id)) } } },
+    {
+      $project: {
+        date: 1,
+        shifts: {
+          $filter: {
+            input: "$shifts",
+            as: "shift",
+            cond: { $in: ["$$shift.userId", ids.map(id => new mongoose.Types.ObjectId(id))] }
+          }
+        }
+      }
+    }
+  ]);
 
   const result = await GlobalSchedule.updateMany(
-    { "shifts.userId" : id},
-    { $pull: { shifts: { userId: id } } })
+    { "shifts.userId": { $in: ids } },
+    { $pull: { shifts: { userId: { $in: ids } } } })
 
   return {
-    // deletedSchedules: scheduleDeleted, 
+    deletedUsers: scheduleDeleted,
     result,
   }
 

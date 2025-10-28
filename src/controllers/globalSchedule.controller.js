@@ -176,13 +176,13 @@ const updateShiftBulk = async (req, res) => {
 
 const deleteScheduleByID = async (req, res) => {
   try {
-    const {id} = req.params
+    const {ids} = req.body
 
-    if (!mongoose.Types.ObjectId.isValid(id)) {
+    if (!Array.isArray(ids) || ids.length === 0) {
       return sendResponse(res, 400, false, "ID inválido")
     }
 
-    const result = await globalScheduleService.deleteScheduleByID(id)
+    const result = await globalScheduleService.deleteScheduleByID(ids)
 
     return sendResponse(res, 200, true, "Usuário deletado com sucesso", result);
   } catch (error) {
