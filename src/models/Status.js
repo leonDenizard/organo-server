@@ -8,8 +8,6 @@ const StatusSchema = new mongoose.Schema({
   },
   code: {
     type: Number,
-    required: true,
-    unique: true
   },
   color: {
     type: String,

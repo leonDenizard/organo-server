@@ -27,7 +27,7 @@ const findAll = async (req, res) => {
         const data = await statusService.findAll()
 
         if (!data || data.length === 0) {
-            return sendResponse(res, 404, false, "Nenhum status encontrado")
+            return sendResponse(res, 200, true, "Nenhum status encontrado", [])
         }
 
         return sendResponse(res, 200, true, "Status encontrados", data)
