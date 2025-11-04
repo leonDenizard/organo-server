@@ -25,7 +25,6 @@ Gerenciar os dados da aplicação **Organo**, garantindo a comunicação entre o
 
 ```
 organo-server/
-├── api/                # Configurações gerais da API
 ├── node_modules/
 ├── src/
 │   ├── controllers/    # Regras de negócio e controle das rotas

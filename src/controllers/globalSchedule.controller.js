@@ -3,6 +3,9 @@ const globalScheduleService = require("../services/globalSchedule.service")
 const sendResponse = require("../utils/response")
 
 const create = async (req, res) => {
+  console.time("Tempo total de criação/mesclagem"); // <--- começa a medir
+  const startTime = Date.now();
+
   try {
     let schedules = Array.isArray(req.body) ? req.body : [req.body];
 
@@ -13,52 +16,73 @@ const create = async (req, res) => {
             throw new Error(`ID inválido: ${id}`);
           })();
 
-    for (const schedule of schedules) {
-      const existing = await globalScheduleService.findByDate(schedule.date);
+    // Processa todos os schedules em paralelo
+    await Promise.all(
+      schedules.map(async (schedule) => {
+        const existing = await globalScheduleService.findByDate(schedule.date);
 
-      if (!existing) {
-        // se o dia não existe, cria novo
-        schedule.shifts = schedule.shifts.map((shift) => ({
-          ...shift,
-          userId: toObjectId(shift.userId),
-          status: toObjectId(shift.status),
-          time: toObjectId(shift.time),
-        }));
-        await globalScheduleService.create(schedule);
-      } else {
-        // se já existe, faz merge
-        const mergedShifts = [...existing.shifts];
+        if (!existing) {
+          // se o dia não existe, cria novo
+          schedule.shifts = schedule.shifts.map((shift) => ({
+            ...shift,
+            userId: toObjectId(shift.userId),
+            status: toObjectId(shift.status),
+            time: toObjectId(shift.time),
+          }));
 
-        for (const newShift of schedule.shifts) {
-          const idx = existing.shifts.findIndex(
-            (s) => s.userId.toString() === newShift.userId
-          );
+          await globalScheduleService.create(schedule);
+        } else {
+          // se já existe, faz merge
+          const mergedShifts = [...existing.shifts];
 
-          if (idx === -1) {
-            // novo user — adiciona
-            mergedShifts.push({
-              ...newShift,
-              userId: toObjectId(newShift.userId),
-              status: toObjectId(newShift.status),
-              time: toObjectId(newShift.time),
-            });
-          } else {
-            // user existente — atualiza
-            mergedShifts[idx].status = toObjectId(newShift.status);
-            mergedShifts[idx].time = toObjectId(newShift.time);
+          for (const newShift of schedule.shifts) {
+            const idx = existing.shifts.findIndex(
+              (s) => s.userId.toString() === newShift.userId
+            );
+
+            if (idx === -1) {
+              // novo user — adiciona
+              mergedShifts.push({
+                ...newShift,
+                userId: toObjectId(newShift.userId),
+                status: toObjectId(newShift.status),
+                time: toObjectId(newShift.time),
+              });
+            } else {
+              // user existente — atualiza
+              mergedShifts[idx].status = toObjectId(newShift.status);
+              mergedShifts[idx].time = toObjectId(newShift.time);
+            }
           }
+
+          await globalScheduleService.updateByDate(schedule.date, {
+            shifts: mergedShifts,
+          });
         }
+      })
+    );
 
-        await globalScheduleService.updateByDate(schedule.date, {
-          shifts: mergedShifts,
-        });
-      }
-    }
+    const endTime = Date.now();
+    const elapsed = ((endTime - startTime) / 1000).toFixed(2);
+    console.log(`⏱ Tempo total de execução: ${elapsed}s`);
+    console.timeEnd("Tempo total de criação/mesclagem");
 
-    return sendResponse(res, 201, true, "Escalas mescladas/criadas com sucesso");
+    return sendResponse(
+      res,
+      201,
+      true,
+      `Escalas mescladas/criadas com sucesso em ${elapsed}s`
+    );
   } catch (error) {
-    console.error("Erro ao criar/mesclar escala:", error);
-    return sendResponse(res, 500, false, "Erro ao criar/mesclar escala", null, error.message);
+    console.error("❌ Erro ao criar/mesclar escala:", error);
+    return sendResponse(
+      res,
+      500,
+      false,
+      "Erro ao criar/mesclar escala",
+      null,
+      error.message
+    );
   }
 };
 
