@@ -1,34 +1,45 @@
 const { default: mongoose } = require('mongoose')
 const GlobalSchedule = require('../models/GlobalSchedule')
 
-const create = (body) => GlobalSchedule.create(body)
+const create = async (body) => await GlobalSchedule.create(body)
 
-const findByDate = (date) => {
+const findByDate = async (date) => {
   if (Array.isArray(date)) {
-    return GlobalSchedule.find({ date: { $in: date } })
+    return await GlobalSchedule.find({ date: { $in: date } })
   }
-  return GlobalSchedule.findOne({ date: date })
+  return await GlobalSchedule.findOne({ date: date })
 }
 
-const getAll = () => {
-  return GlobalSchedule.find()
+const getAll = async () => {
+  return await GlobalSchedule.find()
     .populate("shifts.userId", "name photoUrl surname squad manager")
     .populate("shifts.status")
     .populate("shifts.time")
 }
 
 const getByUser = async (userId) => {
-  const docs = await GlobalSchedule.find({ "shifts.userId": userId })
-    .populate("shifts.userId")
+  const userObjectId = new mongoose.Types.ObjectId(userId);
+
+  const docs = await GlobalSchedule.find({ "shifts.userId": userObjectId })
+    .sort({ date: 1 }) // 🔹 garante ordem cronológica
+    .populate("shifts.userId", "name photoUrl surname squad manager")
     .populate("shifts.status")
     .populate("shifts.time")
-    .lean()
+    .lean();
 
-  return docs.map(doc => ({
-    ...doc,
-    shifts: doc.shifts.filter(s => String(s.userId._id) === String(userId))
-  }))
-}
+  // 🔹 Filtra apenas os shifts do usuário e remove duplicatas
+  const result = docs
+    .map((doc) => ({
+      ...doc,
+      shifts: doc.shifts.filter(
+        (s) => String(s.userId?._id) === String(userId)
+      ),
+    }))
+    .filter((d) => d.shifts.length > 0); // ignora dias sem turnos do usuário
+
+  return result;
+};
+
 
 // const getByUser = async (userId) => {
 //   return GlobalSchedule.aggregate([
@@ -49,8 +60,8 @@ const getByUser = async (userId) => {
 //   ])
 // }
 
-const getByDate = (date) => {
-  return GlobalSchedule.find({ date })
+const getByDate = async (date) => {
+  return await GlobalSchedule.find({ date })
     .populate("shifts.userId")
     .populate("shifts.status")
     .populate("shifts.status")
@@ -59,7 +70,7 @@ const getByDate = (date) => {
 }
 
 const updateByDate = async (date, data) => {
-  return GlobalSchedule.findOneAndUpdate(
+  return await GlobalSchedule.findOneAndUpdate(
     { date },
     { $set: data },
     { new: true }
@@ -92,7 +103,7 @@ const updateShift = async (shiftId, statusId, timeId) => {
   }
 }
 
-const deleteSchedule = async () => GlobalSchedule.deleteMany()
+const deleteSchedule = async () => await GlobalSchedule.deleteMany()
 
 const updateShiftBulk = async ({ shiftId, statusId, timeId }) => {
   // depuraando:
